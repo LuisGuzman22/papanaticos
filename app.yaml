@@ -1,10 +1,17 @@
-runtime: nodejs12
+env: standard
+runtime: nodejs10
+service: default
 handlers:
-  # Serve all static files with url ending with a file extension
-  - url: /(.*\..+)$
+  - url: /static
+    static_dir: build/static
+
+  - url: /assets
+    static_dir: build/assets
+
+  - url: /(.*\.(json|ico|js))$
     static_files: build/\1
-    upload: build/(.*\..+)$
-  # Catch all handler to index.html
-  - url: /.*
+    upload: build/.*\.(json|ico|js)$
+
+  - url: .*
     static_files: build/index.html
     upload: build/index.html
