@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { auth, firestore } from "../../../config/firebase";
+import { OrderComponent } from "../../common/Order";
 
 interface IOrders {
   id: string;
@@ -38,7 +39,8 @@ export const HomePage = () => {
   return (
     <div>
       {orders.map((order, key) => {
-        return <label key={key}>{order.Nombre}</label>;
+        //return <label key={key}>{order.Nombre}</label>;
+        return <OrderComponent nombre={order.Nombre} />;
       })}
     </div>
   );

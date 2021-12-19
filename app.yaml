@@ -1,5 +1,5 @@
 env: standard
-runtime: nodejs10
+runtime: nodejs12
 service: default
 handlers:
   - url: /static
