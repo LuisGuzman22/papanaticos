@@ -1,21 +1,22 @@
 import React from "react";
 import { Card } from "react-bootstrap";
+import { IOrders } from "../../pages/homePage";
 
 interface IProps {
-  nombre: string;
+  order: IOrders;
 }
 export const OrderComponent = (props: IProps) => {
-  const { nombre } = props;
+  const { order } = props;
+  const { client, comment, order: title, size } = order;
   return (
     <div>
       <Card border="dark" style={{ width: "18rem" }}>
-        <Card.Header>{nombre}</Card.Header>
+        <Card.Header>
+          {title} - {size}
+        </Card.Header>
         <Card.Body>
-          <Card.Title>Dark Card Title</Card.Title>
-          <Card.Text>
-            Some quick example text to build on the card title and make up the
-            bulk of the card's content.
-          </Card.Text>
+          <Card.Title></Card.Title>
+          <Card.Text>{comment}</Card.Text>
         </Card.Body>
       </Card>
     </div>
