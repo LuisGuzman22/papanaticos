@@ -7,7 +7,7 @@ interface IProps {
 }
 export const OrderComponent = (props: IProps) => {
   const { order } = props;
-  const { client, comment, order: title, size } = order;
+  const { comment, order: title, size } = order;
   return (
     <div>
       <Card border="dark" style={{ width: "18rem" }}>

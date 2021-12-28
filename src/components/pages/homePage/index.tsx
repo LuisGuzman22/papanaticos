@@ -16,33 +16,23 @@ export const HomePage = () => {
   const [orders, setOrders] = useState<IOrders[]>([]);
 
   useEffect(() => {
-    firestore
-      .collection("orders")
-      .get()
-      .then((querySnapshot) => {
-        // Loop through the data and store
-        // it in array to display
-        querySnapshot.forEach((element) => {
-          const data: IOrders = {
-            client: element.data().client,
-            id: element.id,
-            address: element.data().address,
-            comment: element.data().comment,
-            created_at: element.data().created_at,
-            size: element.data().size,
-            order: element.data().order,
-          };
-          setOrders((arr) => [...arr, data]);
-        });
-      });
-  }, []);
+    firestore.collection("orders").onSnapshot((snapshot) => {
+      setOrders([]);
+      snapshot.forEach((element) => {
+        const data: IOrders = {
+          client: element.data().client,
+          id: element.id,
+          address: element.data().address,
+          comment: element.data().comment,
+          created_at: element.data().created_at,
+          size: element.data().size,
+          order: element.data().order,
+        };
 
-  useEffect(() => {
-    console.log(orders);
-    orders.map((order) => {
-      console.log(order);
+        setOrders((arr) => [...arr, data]);
+      });
     });
-  }, [orders]);
+  }, []);
 
   return (
     <div className="homePage">
@@ -50,10 +40,10 @@ export const HomePage = () => {
       <div className="container ordersContainer">
         <div className="row">
           {orders.map((order, key) => {
-            //return <label key={key}>{order.Nombre}</label>;
+            console.log(orders.length);
             return (
               <div className="col col-lg-4">
-                <OrderComponent order={order} />
+                <OrderComponent key={key} order={order} />
               </div>
             );
           })}
