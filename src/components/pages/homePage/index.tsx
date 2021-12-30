@@ -40,7 +40,6 @@ export const HomePage = () => {
       <div className="container ordersContainer">
         <div className="row">
           {orders.map((order, key) => {
-            console.log(orders.length);
             return (
               <div className="col col-lg-4">
                 <OrderComponent key={key} order={order} />
