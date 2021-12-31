@@ -8,6 +8,13 @@ interface IProps {
 
 export const ModalRegister = (props: IProps) => {
   const { show, handleClose } = props;
+
+  const handleRegister = (event: any) => {
+    console.log(event.target);
+
+    event.preventDefault();
+  };
+
   return (
     <div>
       <Modal show={show} onHide={handleClose}>
@@ -80,7 +87,7 @@ export const ModalRegister = (props: IProps) => {
           <Button variant="secondary" onClick={handleClose}>
             Cerrar
           </Button>
-          <Button variant="primary" onClick={handleClose}>
+          <Button variant="primary" type="submit" onClick={handleRegister}>
             Registrar pedido
           </Button>
         </Modal.Footer>
