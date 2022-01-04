@@ -65,6 +65,10 @@ export const ModalRegister = (props: IProps) => {
     handleClose(event);
   };
 
+  const handleCloseModal = (event: any) => {
+    handleClose(event);
+  };
+
   const handleChangePhone = (event: any) => {
     setphoneNumber(event.target.value);
   };
@@ -128,7 +132,7 @@ export const ModalRegister = (props: IProps) => {
 
   return (
     <div>
-      <Modal show={show} onHide={handleClose}>
+      <Modal show={show} onHide={handleCloseModal}>
         <Modal.Header closeButton>
           <Modal.Title>Registro de pedido</Modal.Title>
         </Modal.Header>
