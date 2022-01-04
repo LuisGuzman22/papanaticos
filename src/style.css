@@ -6,6 +6,7 @@ body {
 .App:after {
   content: "";
   background: url("assets/background.jpg") no-repeat center center;
+  background-size: 100% auto;
   position: absolute;
   top: 0px;
   left: 0px;

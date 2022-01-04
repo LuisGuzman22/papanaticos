@@ -1,6 +1,7 @@
 import firebase from "firebase/compat/app";
 import React, { MouseEventHandler, useEffect, useState } from "react";
 import { Button, Col, Form, Modal, Row } from "react-bootstrap";
+import { FaBiking, FaMapMarkerAlt } from "react-icons/fa";
 import { firestore } from "../../../config/firebase";
 
 interface IProps {
@@ -135,12 +136,24 @@ export const ModalRegister = (props: IProps) => {
         <Modal.Body>
           <Form>
             <Form.Group as={Row} className="mb-3">
+              <Form.Label column sm="3"></Form.Label>
+              <Col sm="9">
+                <Button variant="outline-dark">
+                  <FaMapMarkerAlt /> Retiro en tienda
+                </Button>
+                <Button variant="outline-dark">
+                  <FaBiking />
+                  Delivery
+                </Button>
+              </Col>
+            </Form.Group>
+            <Form.Group as={Row} className="mb-3">
               <Form.Label column sm="2">
                 Teléfono
               </Form.Label>
               <Col sm="10">
                 <Form.Control
-                  placeholder="9 5116 7340"
+                  placeholder="Teléfono"
                   onChange={handleChangePhone}
                 />
               </Col>
@@ -152,7 +165,7 @@ export const ModalRegister = (props: IProps) => {
               </Form.Label>
               <Col sm="10">
                 <Form.Control
-                  placeholder="Papitas"
+                  placeholder="Pedido"
                   onChange={handleChangeOrder}
                 />
               </Col>
@@ -175,7 +188,7 @@ export const ModalRegister = (props: IProps) => {
               </Form.Label>
               <Col sm="10">
                 <Form.Control
-                  placeholder="Luis Guzmán"
+                  placeholder="Cliente"
                   onChange={handleChangeClient}
                   value={
                     clientName
@@ -194,7 +207,7 @@ export const ModalRegister = (props: IProps) => {
               </Form.Label>
               <Col sm="10">
                 <Form.Control
-                  placeholder="Manuel Bayon 639 casa 54"
+                  placeholder="Dirección"
                   onChange={handleChangeAddress}
                   value={
                     address
