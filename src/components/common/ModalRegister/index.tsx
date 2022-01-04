@@ -1,7 +1,6 @@
 import firebase from "firebase/compat/app";
 import React, { MouseEventHandler, useEffect, useState } from "react";
 import { Button, Col, Form, Modal, Row } from "react-bootstrap";
-import { FaBiking, FaMapMarkerAlt } from "react-icons/fa";
 import { firestore } from "../../../config/firebase";
 
 interface IProps {
@@ -138,13 +137,8 @@ export const ModalRegister = (props: IProps) => {
             <Form.Group as={Row} className="mb-3">
               <Form.Label column sm="3"></Form.Label>
               <Col sm="9">
-                <Button variant="outline-dark">
-                  <FaMapMarkerAlt /> Retiro en tienda
-                </Button>
-                <Button variant="outline-dark">
-                  <FaBiking />
-                  Delivery
-                </Button>
+                <Button variant="outline-dark">Retiro en tienda</Button>
+                <Button variant="outline-dark">Delivery</Button>
               </Col>
             </Form.Group>
             <Form.Group as={Row} className="mb-3">
