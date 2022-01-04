@@ -1,6 +1,7 @@
 import firebase from "firebase/compat/app";
 import React, { MouseEventHandler, useEffect, useState } from "react";
 import { Button, Col, Form, Modal, Row } from "react-bootstrap";
+import { FaBiking, FaMapMarkerAlt } from "react-icons/fa";
 import { firestore } from "../../../config/firebase";
 
 interface IProps {
@@ -21,7 +22,9 @@ export const ModalRegister = (props: IProps) => {
   const [clientName, setclientName] = useState("");
   const [address, setaddress] = useState("");
   const [comment, setcomment] = useState("");
-
+  const [disableUsesr, setdisableUsesr] = useState(true);
+  const [disableAddress, setdisableAddress] = useState(true);
+  const [createUser, setcreateUser] = useState(false);
   const [clientData, setclientData] = useState<IClient>();
 
   const handleRegister = (event: any) => {
@@ -38,11 +41,28 @@ export const ModalRegister = (props: IProps) => {
         created_at: firebase.firestore.FieldValue.serverTimestamp(),
       })
       .then((res) => {
-        console.log("res", res);
+        console.log("orden registrada", res);
       })
       .catch((e) => {
         console.log("e", e);
       });
+
+    if (createUser) {
+      firestore
+        .collection("clients")
+        .add({
+          address,
+          name: clientName,
+          phone: phoneNumber,
+          created_at: firebase.firestore.FieldValue.serverTimestamp(),
+        })
+        .then((res) => {
+          console.log("res", res);
+        })
+        .catch((e) => {
+          console.log("e", e);
+        });
+    }
     handleClose(event);
   };
 
@@ -51,24 +71,41 @@ export const ModalRegister = (props: IProps) => {
   };
 
   useEffect(() => {
-    console.log("phone", phoneNumber);
-    firestore
-      .collection("clients")
-      .where("phone", "==", phoneNumber)
-      .onSnapshot((snapshot) => {
-        snapshot.forEach((element) => {
-          const data: IClient = {
-            address: element.data().address,
-            name: element.data().name,
-          };
-          setclientData(data);
+    if (phoneNumber.length === 9) {
+      firestore
+        .collection("clients")
+        .where("phone", "==", phoneNumber)
+        .onSnapshot((snapshot) => {
+          snapshot.forEach((element) => {
+            const data: IClient = {
+              address: element.data().address,
+              name: element.data().name,
+            };
+            setclientData(data);
+          });
         });
-      });
+      setdisableAddress(false);
+      setdisableUsesr(false);
+    } else {
+      setdisableAddress(true);
+      setdisableUsesr(true);
+      setclientName("");
+      setaddress("");
+    }
   }, [phoneNumber]);
 
   useEffect(() => {
-    console.log("clientData", clientData);
+    // console.log("clientData", clientData);
+    if (!clientData) {
+      setcreateUser(true);
+    } else {
+      setcreateUser(false);
+    }
   }, [clientData]);
+
+  // useEffect(() => {
+  //   console.log("createUser", createUser);
+  // }, [createUser]);
 
   const handleChangeOrder = (event: any) => {
     setorder(event.target.value);
@@ -99,12 +136,24 @@ export const ModalRegister = (props: IProps) => {
         <Modal.Body>
           <Form>
             <Form.Group as={Row} className="mb-3">
+              <Form.Label column sm="3"></Form.Label>
+              <Col sm="9">
+                <Button variant="outline-dark">
+                  <FaMapMarkerAlt /> Retiro en tienda
+                </Button>
+                <Button variant="outline-dark">
+                  <FaBiking />
+                  Delivery
+                </Button>
+              </Col>
+            </Form.Group>
+            <Form.Group as={Row} className="mb-3">
               <Form.Label column sm="2">
                 Teléfono
               </Form.Label>
               <Col sm="10">
                 <Form.Control
-                  placeholder="9 5116 7340"
+                  placeholder="Teléfono"
                   onChange={handleChangePhone}
                 />
               </Col>
@@ -116,7 +165,7 @@ export const ModalRegister = (props: IProps) => {
               </Form.Label>
               <Col sm="10">
                 <Form.Control
-                  placeholder="Papitas"
+                  placeholder="Pedido"
                   onChange={handleChangeOrder}
                 />
               </Col>
@@ -139,10 +188,16 @@ export const ModalRegister = (props: IProps) => {
               </Form.Label>
               <Col sm="10">
                 <Form.Control
-                  placeholder="Luis Guzmán"
+                  placeholder="Cliente"
                   onChange={handleChangeClient}
-                  value={clientData?.name ? clientData?.name : ""}
-                  disabled={clientData?.name ? false : true}
+                  value={
+                    clientName
+                      ? clientName
+                      : clientData?.name
+                      ? clientData?.name
+                      : ""
+                  }
+                  disabled={disableUsesr}
                 />
               </Col>
             </Form.Group>
@@ -152,10 +207,16 @@ export const ModalRegister = (props: IProps) => {
               </Form.Label>
               <Col sm="10">
                 <Form.Control
-                  placeholder="Manuel Bayon 639 casa 54"
+                  placeholder="Dirección"
                   onChange={handleChangeAddress}
-                  value={clientData?.address ? clientData?.address : ""}
-                  disabled={clientData?.address ? false : true}
+                  value={
+                    address
+                      ? address
+                      : clientData?.address
+                      ? clientData?.address
+                      : ""
+                  }
+                  disabled={disableAddress}
                 />
               </Col>
             </Form.Group>
