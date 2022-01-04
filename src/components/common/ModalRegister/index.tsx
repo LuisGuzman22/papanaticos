@@ -21,9 +21,7 @@ export const ModalRegister = (props: IProps) => {
   const [clientName, setclientName] = useState("");
   const [address, setaddress] = useState("");
   const [comment, setcomment] = useState("");
-  const [disableUsesr, setdisableUsesr] = useState(true);
-  const [disableAddress, setdisableAddress] = useState(true);
-  const [createUser, setcreateUser] = useState(false);
+
   const [clientData, setclientData] = useState<IClient>();
 
   const handleRegister = (event: any) => {
@@ -40,32 +38,11 @@ export const ModalRegister = (props: IProps) => {
         created_at: firebase.firestore.FieldValue.serverTimestamp(),
       })
       .then((res) => {
-        console.log("orden registrada", res);
+        console.log("res", res);
       })
       .catch((e) => {
         console.log("e", e);
       });
-
-    if (createUser) {
-      firestore
-        .collection("clients")
-        .add({
-          address,
-          name: clientName,
-          phone: phoneNumber,
-          created_at: firebase.firestore.FieldValue.serverTimestamp(),
-        })
-        .then((res) => {
-          console.log("res", res);
-        })
-        .catch((e) => {
-          console.log("e", e);
-        });
-    }
-    handleClose(event);
-  };
-
-  const handleCloseModal = (event: any) => {
     handleClose(event);
   };
 
@@ -74,41 +51,24 @@ export const ModalRegister = (props: IProps) => {
   };
 
   useEffect(() => {
-    if (phoneNumber.length === 9) {
-      firestore
-        .collection("clients")
-        .where("phone", "==", phoneNumber)
-        .onSnapshot((snapshot) => {
-          snapshot.forEach((element) => {
-            const data: IClient = {
-              address: element.data().address,
-              name: element.data().name,
-            };
-            setclientData(data);
-          });
+    console.log("phone", phoneNumber);
+    firestore
+      .collection("clients")
+      .where("phone", "==", phoneNumber)
+      .onSnapshot((snapshot) => {
+        snapshot.forEach((element) => {
+          const data: IClient = {
+            address: element.data().address,
+            name: element.data().name,
+          };
+          setclientData(data);
         });
-      setdisableAddress(false);
-      setdisableUsesr(false);
-    } else {
-      setdisableAddress(true);
-      setdisableUsesr(true);
-      setclientName("");
-      setaddress("");
-    }
+      });
   }, [phoneNumber]);
 
   useEffect(() => {
-    // console.log("clientData", clientData);
-    if (!clientData) {
-      setcreateUser(true);
-    } else {
-      setcreateUser(false);
-    }
+    console.log("clientData", clientData);
   }, [clientData]);
-
-  // useEffect(() => {
-  //   console.log("createUser", createUser);
-  // }, [createUser]);
 
   const handleChangeOrder = (event: any) => {
     setorder(event.target.value);
@@ -132,26 +92,19 @@ export const ModalRegister = (props: IProps) => {
 
   return (
     <div>
-      <Modal show={show} onHide={handleCloseModal}>
+      <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton>
           <Modal.Title>Registro de pedido</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
             <Form.Group as={Row} className="mb-3">
-              <Form.Label column sm="3"></Form.Label>
-              <Col sm="9">
-                <Button variant="outline-dark">Retiro en tienda</Button>
-                <Button variant="outline-dark">Delivery</Button>
-              </Col>
-            </Form.Group>
-            <Form.Group as={Row} className="mb-3">
               <Form.Label column sm="2">
                 Teléfono
               </Form.Label>
               <Col sm="10">
                 <Form.Control
-                  placeholder="Teléfono"
+                  placeholder="9 5116 7340"
                   onChange={handleChangePhone}
                 />
               </Col>
@@ -163,7 +116,7 @@ export const ModalRegister = (props: IProps) => {
               </Form.Label>
               <Col sm="10">
                 <Form.Control
-                  placeholder="Pedido"
+                  placeholder="Papitas"
                   onChange={handleChangeOrder}
                 />
               </Col>
@@ -186,16 +139,10 @@ export const ModalRegister = (props: IProps) => {
               </Form.Label>
               <Col sm="10">
                 <Form.Control
-                  placeholder="Cliente"
+                  placeholder="Luis Guzmán"
                   onChange={handleChangeClient}
-                  value={
-                    clientName
-                      ? clientName
-                      : clientData?.name
-                      ? clientData?.name
-                      : ""
-                  }
-                  disabled={disableUsesr}
+                  value={clientData?.name ? clientData?.name : ""}
+                  disabled={clientData?.name ? false : true}
                 />
               </Col>
             </Form.Group>
@@ -205,16 +152,10 @@ export const ModalRegister = (props: IProps) => {
               </Form.Label>
               <Col sm="10">
                 <Form.Control
-                  placeholder="Dirección"
+                  placeholder="Manuel Bayon 639 casa 54"
                   onChange={handleChangeAddress}
-                  value={
-                    address
-                      ? address
-                      : clientData?.address
-                      ? clientData?.address
-                      : ""
-                  }
-                  disabled={disableAddress}
+                  value={clientData?.address ? clientData?.address : ""}
+                  disabled={clientData?.address ? false : true}
                 />
               </Col>
             </Form.Group>
