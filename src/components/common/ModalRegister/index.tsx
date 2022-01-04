@@ -1,18 +1,93 @@
-import React, { MouseEventHandler } from "react";
-import { Modal, Form, Row, Col, Button } from "react-bootstrap";
+import firebase from "firebase/compat/app";
+import React, { MouseEventHandler, useEffect, useState } from "react";
+import { Button, Col, Form, Modal, Row } from "react-bootstrap";
+import { firestore } from "../../../config/firebase";
 
 interface IProps {
   show: boolean;
   handleClose: MouseEventHandler<HTMLButtonElement>;
 }
 
+interface IClient {
+  name: string;
+  address: string;
+}
+
 export const ModalRegister = (props: IProps) => {
   const { show, handleClose } = props;
+  const [phoneNumber, setphoneNumber] = useState("");
+  const [order, setorder] = useState("");
+  const [size, setsize] = useState("");
+  const [clientName, setclientName] = useState("");
+  const [address, setaddress] = useState("");
+  const [comment, setcomment] = useState("");
+
+  const [clientData, setclientData] = useState<IClient>();
 
   const handleRegister = (event: any) => {
-    console.log(event.target);
-
     event.preventDefault();
+
+    firestore
+      .collection("orders")
+      .add({
+        client: clientName,
+        address,
+        comment,
+        size,
+        order,
+        created_at: firebase.firestore.FieldValue.serverTimestamp(),
+      })
+      .then((res) => {
+        console.log("res", res);
+      })
+      .catch((e) => {
+        console.log("e", e);
+      });
+    handleClose(event);
+  };
+
+  const handleChangePhone = (event: any) => {
+    setphoneNumber(event.target.value);
+  };
+
+  useEffect(() => {
+    console.log("phone", phoneNumber);
+    firestore
+      .collection("clients")
+      .where("phone", "==", phoneNumber)
+      .onSnapshot((snapshot) => {
+        snapshot.forEach((element) => {
+          const data: IClient = {
+            address: element.data().address,
+            name: element.data().name,
+          };
+          setclientData(data);
+        });
+      });
+  }, [phoneNumber]);
+
+  useEffect(() => {
+    console.log("clientData", clientData);
+  }, [clientData]);
+
+  const handleChangeOrder = (event: any) => {
+    setorder(event.target.value);
+  };
+
+  const handleChangeSize = (event: any) => {
+    setsize(event.target.value);
+  };
+
+  const handleChangeClient = (event: any) => {
+    setclientName(event.target.value);
+  };
+
+  const handleChangeAddress = (event: any) => {
+    setaddress(event.target.value);
+  };
+
+  const handleChangeComment = (event: any) => {
+    setcomment(event.target.value);
   };
 
   return (
@@ -28,7 +103,10 @@ export const ModalRegister = (props: IProps) => {
                 Teléfono
               </Form.Label>
               <Col sm="10">
-                <Form.Control defaultValue="+569 5116 7340" />
+                <Form.Control
+                  placeholder="9 5116 7340"
+                  onChange={handleChangePhone}
+                />
               </Col>
             </Form.Group>
 
@@ -37,7 +115,10 @@ export const ModalRegister = (props: IProps) => {
                 Pedido
               </Form.Label>
               <Col sm="10">
-                <Form.Control placeholder="Papitas" />
+                <Form.Control
+                  placeholder="Papitas"
+                  onChange={handleChangeOrder}
+                />
               </Col>
             </Form.Group>
             <Form.Group as={Row} className="mb-3">
@@ -45,10 +126,10 @@ export const ModalRegister = (props: IProps) => {
                 Tamaño
               </Form.Label>
               <Col sm="10">
-                <Form.Select aria-label="XL">
+                <Form.Select aria-label="XL" onChange={handleChangeSize}>
                   <option>Tamaño</option>
-                  <option value="1">Normal</option>
-                  <option value="2">XL</option>
+                  <option value="Normal">Normal</option>
+                  <option value="XL">XL</option>
                 </Form.Select>
               </Col>
             </Form.Group>
@@ -57,7 +138,12 @@ export const ModalRegister = (props: IProps) => {
                 Cliente
               </Form.Label>
               <Col sm="10">
-                <Form.Control placeholder="Luis Guzmán" />
+                <Form.Control
+                  placeholder="Luis Guzmán"
+                  onChange={handleChangeClient}
+                  value={clientData?.name ? clientData?.name : ""}
+                  disabled={clientData?.name ? false : true}
+                />
               </Col>
             </Form.Group>
             <Form.Group as={Row} className="mb-3">
@@ -65,7 +151,12 @@ export const ModalRegister = (props: IProps) => {
                 Dirección
               </Form.Label>
               <Col sm="10">
-                <Form.Control placeholder="Manuel Bayon 639 casa 54" />
+                <Form.Control
+                  placeholder="Manuel Bayon 639 casa 54"
+                  onChange={handleChangeAddress}
+                  value={clientData?.address ? clientData?.address : ""}
+                  disabled={clientData?.address ? false : true}
+                />
               </Col>
             </Form.Group>
 
@@ -78,6 +169,7 @@ export const ModalRegister = (props: IProps) => {
                   placeholder="bla bla bla"
                   as="textarea"
                   rows={3}
+                  onChange={handleChangeComment}
                 />
               </Col>
             </Form.Group>
