@@ -5,7 +5,8 @@ body {
 
 .App:after {
   content: "";
-  background: url("assets/background.jpg") no-repeat center center;
+  background: url("https://firebasestorage.googleapis.com/v0/b/torneos-app.appspot.com/o/background.jpg?alt=media&token=c9ca6036-54f6-48fe-b21e-ffe3984b10d6")
+    no-repeat center center;
   background-size: 100% auto;
   position: absolute;
   top: 0px;
