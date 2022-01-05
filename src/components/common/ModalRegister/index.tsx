@@ -1,5 +1,7 @@
-import React, { MouseEventHandler, useState } from "react";
+import firebase from "firebase/compat/app";
+import React, { MouseEventHandler, useEffect, useState } from "react";
 import { Button, Col, Form, Modal, Row } from "react-bootstrap";
+import { firestore } from "../../../config/firebase";
 
 interface IProps {
   show: boolean;
@@ -25,9 +27,42 @@ export const ModalRegister = (props: IProps) => {
   const [clientData, setclientData] = useState<IClient>();
 
   const handleRegister = (event: any) => {
-    console.log(event.target);
-
     event.preventDefault();
+
+    firestore
+      .collection("orders")
+      .add({
+        client: clientName,
+        address,
+        comment,
+        size,
+        order,
+        created_at: firebase.firestore.FieldValue.serverTimestamp(),
+      })
+      .then((res) => {
+        console.log("orden registrada", res);
+      })
+      .catch((e) => {
+        console.log("e", e);
+      });
+
+    if (createUser) {
+      firestore
+        .collection("clients")
+        .add({
+          address,
+          name: clientName,
+          phone: phoneNumber,
+          created_at: firebase.firestore.FieldValue.serverTimestamp(),
+        })
+        .then((res) => {
+          console.log("res", res);
+        })
+        .catch((e) => {
+          console.log("e", e);
+        });
+    }
+    handleClose(event);
   };
 
   const handleChangeOrder = (event: any) => {
@@ -53,6 +88,43 @@ export const ModalRegister = (props: IProps) => {
   const handleChangePhone = (event: any) => {
     setphoneNumber(event.target.value);
   };
+
+  useEffect(() => {
+    if (phoneNumber.length === 9) {
+      firestore
+        .collection("clients")
+        .where("phone", "==", phoneNumber)
+        .onSnapshot((snapshot) => {
+          snapshot.forEach((element) => {
+            const data: IClient = {
+              address: element.data().address,
+              name: element.data().name,
+            };
+            setclientData(data);
+          });
+        });
+      setdisableAddress(false);
+      setdisableUsesr(false);
+    } else {
+      setdisableAddress(true);
+      setdisableUsesr(true);
+      setclientName("");
+      setaddress("");
+    }
+  }, [phoneNumber]);
+
+  useEffect(() => {
+    // console.log("clientData", clientData);
+    if (!clientData) {
+      setcreateUser(true);
+    } else {
+      setcreateUser(false);
+    }
+  }, [clientData]);
+
+  // useEffect(() => {
+  //   console.log("createUser", createUser);
+  // }, [createUser]);
 
   return (
     <div>
