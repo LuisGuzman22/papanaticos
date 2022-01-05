@@ -1,9 +1,17 @@
 import firebase from "firebase/compat/app";
 import React, { MouseEventHandler, useEffect, useState } from "react";
-import { Button, Col, Form, Modal, Row } from "react-bootstrap";
+import {
+  Button,
+  Col,
+  Form,
+  Modal,
+  Row,
+  ToggleButton,
+  ToggleButtonGroup,
+} from "react-bootstrap";
 import { FaBiking, FaMapMarkerAlt } from "react-icons/fa";
 import { firestore } from "../../../config/firebase";
-
+import "./style.css";
 interface IProps {
   show: boolean;
   handleClose: MouseEventHandler<HTMLButtonElement>;
@@ -25,6 +33,7 @@ export const ModalRegister = (props: IProps) => {
   const [disableUsesr, setdisableUsesr] = useState(true);
   const [disableAddress, setdisableAddress] = useState(true);
   const [createUser, setcreateUser] = useState(false);
+  const [deliveryType, setdeliveryType] = useState("");
   const [clientData, setclientData] = useState<IClient>();
 
   const handleRegister = (event: any) => {
@@ -39,6 +48,7 @@ export const ModalRegister = (props: IProps) => {
         size,
         order,
         created_at: firebase.firestore.FieldValue.serverTimestamp(),
+        type: deliveryType,
       })
       .then((res) => {
         console.log("orden registrada", res);
@@ -95,17 +105,12 @@ export const ModalRegister = (props: IProps) => {
   }, [phoneNumber]);
 
   useEffect(() => {
-    // console.log("clientData", clientData);
     if (!clientData) {
       setcreateUser(true);
     } else {
       setcreateUser(false);
     }
   }, [clientData]);
-
-  // useEffect(() => {
-  //   console.log("createUser", createUser);
-  // }, [createUser]);
 
   const handleChangeOrder = (event: any) => {
     setorder(event.target.value);
@@ -127,8 +132,12 @@ export const ModalRegister = (props: IProps) => {
     setcomment(event.target.value);
   };
 
+  const handleChangeType = (event: any) => {
+    setdeliveryType(event === 1 ? "ret" : "del");
+  };
+
   return (
-    <div>
+    <div className="ModalRegister">
       <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton>
           <Modal.Title>Registro de pedido</Modal.Title>
@@ -136,15 +145,38 @@ export const ModalRegister = (props: IProps) => {
         <Modal.Body>
           <Form>
             <Form.Group as={Row} className="mb-3">
-              <Form.Label column sm="3"></Form.Label>
-              <Col sm="9">
-                <Button variant="outline-dark">
-                  <FaMapMarkerAlt /> Retiro en tienda
-                </Button>
-                <Button variant="outline-dark">
-                  <FaBiking />
-                  Delivery
-                </Button>
+              {/* <Form.Label column sm="3"></Form.Label> */}
+              <Col sm="12" className="button-container">
+                <ToggleButtonGroup
+                  type="radio"
+                  name="options"
+                  onChange={handleChangeType}
+                >
+                  <ToggleButton
+                    id="tbg-check-1"
+                    value={1}
+                    variant="outline-dark"
+                    className="ret"
+                  >
+                    <div className="ret-div">
+                      <FaMapMarkerAlt className="ret-icon" />
+                      <br />
+                      <span className="ret-label">Retiro en tienda</span>
+                    </div>
+                  </ToggleButton>
+                  <ToggleButton
+                    id="tbg-check-2"
+                    value={2}
+                    variant="outline-dark"
+                    className="del"
+                  >
+                    <div className="del-div">
+                      <FaBiking className="del-icon" />
+                      <br />
+                      <span className="del-label">Delivery</span>
+                    </div>
+                  </ToggleButton>
+                </ToggleButtonGroup>
               </Col>
             </Form.Group>
             <Form.Group as={Row} className="mb-3">
