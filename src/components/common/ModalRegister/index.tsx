@@ -1,15 +1,20 @@
 import firebase from "firebase/compat/app";
 import React, { MouseEventHandler, useEffect, useState } from "react";
 import {
+  Accordion,
   Button,
   Col,
   Form,
+  ListGroup,
   Modal,
   Row,
+  Tab,
+  Tabs,
   ToggleButton,
   ToggleButtonGroup,
 } from "react-bootstrap";
-import { FaBiking, FaMapMarkerAlt } from "react-icons/fa";
+import { FaBiking, FaMapMarkerAlt, FaWineBottle } from "react-icons/fa";
+import { GiFrenchFries } from "react-icons/gi";
 import { firestore } from "../../../config/firebase";
 import "./style.css";
 interface IProps {
@@ -190,30 +195,6 @@ export const ModalRegister = (props: IProps) => {
                 />
               </Col>
             </Form.Group>
-
-            <Form.Group as={Row} className="mb-3">
-              <Form.Label column sm="2">
-                Pedido
-              </Form.Label>
-              <Col sm="10">
-                <Form.Control
-                  placeholder="Pedido"
-                  onChange={handleChangeOrder}
-                />
-              </Col>
-            </Form.Group>
-            <Form.Group as={Row} className="mb-3">
-              <Form.Label column sm="2">
-                Tamaño
-              </Form.Label>
-              <Col sm="10">
-                <Form.Select aria-label="XL" onChange={handleChangeSize}>
-                  <option>Tamaño</option>
-                  <option value="Normal">Normal</option>
-                  <option value="XL">XL</option>
-                </Form.Select>
-              </Col>
-            </Form.Group>
             <Form.Group as={Row} className="mb-3">
               <Form.Label column sm="2">
                 Cliente
@@ -253,6 +234,100 @@ export const ModalRegister = (props: IProps) => {
               </Col>
             </Form.Group>
 
+            <Tabs
+              defaultActiveKey="home"
+              transition={false}
+              id="noanim-tab-example"
+              className="mb-3"
+            >
+              <Tab
+                eventKey={1}
+                title={
+                  <span>
+                    <GiFrenchFries className="ret-icon" /> <span>Papas</span>
+                  </span>
+                }
+              >
+                <Accordion>
+                  <Accordion.Item eventKey="0">
+                    <Accordion.Header>
+                      <span>Papas Champiñón y Salsanática</span>
+                    </Accordion.Header>
+                    <Accordion.Body>
+                      <ListGroup>
+                        <ListGroup.Item>Mechada (+$1.000)</ListGroup.Item>
+                        <ListGroup.Item>Pollo (+$1.000)</ListGroup.Item>
+                        <ListGroup.Item>Champiñón (+$1.000)</ListGroup.Item>
+                        <ListGroup.Item>Salsanática (+$1.000)</ListGroup.Item>
+                        <ListGroup.Item>Vienesa (+$1.000)</ListGroup.Item>
+                      </ListGroup>
+                    </Accordion.Body>
+                  </Accordion.Item>
+                  <Accordion.Item eventKey="0">
+                    <Accordion.Header>
+                      <span>Papas Fritas</span>
+                    </Accordion.Header>
+                    <Accordion.Body>
+                      <ListGroup>
+                        <ListGroup.Item>Mechada (+$1.000)</ListGroup.Item>
+                        <ListGroup.Item>Pollo (+$1.000)</ListGroup.Item>
+                        <ListGroup.Item>Champiñón (+$1.000)</ListGroup.Item>
+                        <ListGroup.Item>Salsanática (+$1.000)</ListGroup.Item>
+                        <ListGroup.Item>Vienesa (+$1.000)</ListGroup.Item>
+                      </ListGroup>
+                    </Accordion.Body>
+                  </Accordion.Item>
+                  <Accordion.Item eventKey="0">
+                    <Accordion.Header>
+                      <span>Salchipapas</span>
+                    </Accordion.Header>
+                    <Accordion.Body>
+                      <ListGroup>
+                        <ListGroup.Item>Mechada (+$1.000)</ListGroup.Item>
+                        <ListGroup.Item>Pollo (+$1.000)</ListGroup.Item>
+                        <ListGroup.Item>Champiñón (+$1.000)</ListGroup.Item>
+                        <ListGroup.Item>Salsanática (+$1.000)</ListGroup.Item>
+                        <ListGroup.Item>Vienesa (+$1.000)</ListGroup.Item>
+                      </ListGroup>
+                    </Accordion.Body>
+                  </Accordion.Item>
+                </Accordion>
+              </Tab>
+              <Tab
+                eventKey={2}
+                title={
+                  <span>
+                    <FaWineBottle className="ret-icon" /> <span>Bebidas</span>
+                  </span>
+                }
+              >
+                Tab 2 content
+              </Tab>
+            </Tabs>
+
+            {/* <Form.Group as={Row} className="mb-3">
+              <Form.Label column sm="2">
+                Pedido
+              </Form.Label>
+              <Col sm="10">
+                <Form.Control
+                  placeholder="Pedido"
+                  onChange={handleChangeOrder}
+                />
+              </Col>
+            </Form.Group>
+            <Form.Group as={Row} className="mb-3">
+              <Form.Label column sm="2">
+                Tamaño
+              </Form.Label>
+              <Col sm="10">
+                <Form.Select aria-label="XL" onChange={handleChangeSize}>
+                  <option>Tamaño</option>
+                  <option value="Normal">Normal</option>
+                  <option value="XL">XL</option>
+                </Form.Select>
+              </Col>
+            </Form.Group> */}
             <Form.Group as={Row} className="mb-3">
               <Form.Label column sm="2">
                 Comentario

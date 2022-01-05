@@ -1,15 +1,5 @@
 import React, { useState } from "react";
-import {
-  Navbar,
-  Container,
-  Nav,
-  NavDropdown,
-  Modal,
-  Button,
-  Col,
-  Form,
-  Row,
-} from "react-bootstrap";
+import { Container, Nav, Navbar, NavDropdown } from "react-bootstrap";
 import { ModalRegister } from "../ModalRegister";
 
 export const HeaderComponent = () => {
