@@ -56,7 +56,7 @@ export const ModalRegister = (props: IProps) => {
 
   return (
     <div>
-      <Modal show={show} onHide={handleClose}>
+      <Modal show={show}>
         <Modal.Header closeButton>
           <Modal.Title>Registro de pedido</Modal.Title>
         </Modal.Header>
