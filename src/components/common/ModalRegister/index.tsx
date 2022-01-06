@@ -50,6 +50,7 @@ export const ModalRegister = (props: IProps) => {
   const [selectedProducts, setSelectedProducts] = useState<ISelectedProducts[]>(
     []
   );
+  const [selectProduct, setselectProduct] = useState("");
 
   const { aggregates } = useGetAggregates();
   const { products } = useGetProducts();
@@ -154,14 +155,50 @@ export const ModalRegister = (props: IProps) => {
     setdeliveryType(event === 1 ? "ret" : "del");
   };
 
-  const handleCloseMini = () => setShowMini(false);
+  const handleCloseMini = () => {
+    setselectProduct("");
+    setShowMini(false);
+  };
 
   const handleSelectProduct = (product: IProducts) => {
     setShowMini(true);
+    setselectProduct(product.name);
     const data: ISelectedProducts = {
       product: product.name,
     };
     setSelectedProducts((arr) => [...arr, data]);
+  };
+
+  const handleSelectAggregate = (aggregate: IAggregates) => {
+    // console.log("aggregates", aggregate);
+    const selecProduct = selectedProducts.find(
+      (selectedProduct: ISelectedProducts) => {
+        return selectedProduct.product === selectProduct;
+      }
+    );
+
+    let filterProduct = selectedProducts.filter(
+      (selectedProduct: ISelectedProducts) => {
+        return selectedProduct.product !== selectProduct;
+      }
+    );
+
+    console.log("selecProduct.aggregates", selecProduct.aggregates);
+    const data: ISelectedProducts = {
+      product: selecProduct.product ? selecProduct.product : "",
+      aggregates:
+        selecProduct.aggregates === undefined
+          ? aggregate.name
+          : `${selecProduct.aggregates} ${aggregate.name}`,
+    };
+
+    filterProduct.push(data);
+    setSelectedProducts(filterProduct);
+
+    // setselectProduct("");
+    // buscar en selectedProducts el valor de selectProduct
+    // cargar los aggregates
+    // limpiar selectProduct
   };
 
   useEffect(() => {
@@ -353,15 +390,22 @@ export const ModalRegister = (props: IProps) => {
 
       <Modal show={showMini}>
         <Modal.Header closeButton>
-          <Modal.Title>Agregados</Modal.Title>
+          <Modal.Title>Agregados: {selectProduct}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <ListGroup variant="flush">
             {aggregates.map((aggregate: IAggregates) => {
               return (
                 <ListGroup.Item key={aggregate.name}>
-                  <input type="checkbox" />{" "}
-                  {`${aggregate.name} (+$${aggregate.price})`}
+                  <input
+                    type="checkbox"
+                    id={aggregate.id}
+                    value={aggregate.id}
+                    onClick={() => {
+                      handleSelectAggregate(aggregate);
+                    }}
+                  />{" "}
+                  <label>{`${aggregate.name} (+$${aggregate.price})`}</label>
                 </ListGroup.Item>
               );
             })}
