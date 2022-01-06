@@ -1,7 +1,6 @@
 import firebase from "firebase/compat/app";
 import React, { MouseEventHandler, useEffect, useState } from "react";
 import {
-  Accordion,
   Button,
   Col,
   Form,
@@ -16,6 +15,8 @@ import {
 import { FaBiking, FaMapMarkerAlt, FaWineBottle } from "react-icons/fa";
 import { GiFrenchFries } from "react-icons/gi";
 import { firestore } from "../../../config/firebase";
+import useGetAggregates, { IAggregates } from "../../../hooks/useGetAggregates";
+import useGetProducts, { IProducts } from "../../../hooks/useGetProducts";
 import "./style.css";
 interface IProps {
   show: boolean;
@@ -27,11 +28,16 @@ interface IClient {
   address: string;
 }
 
+interface ISelectedProducts {
+  product: string;
+  aggregates?: string;
+}
+
 export const ModalRegister = (props: IProps) => {
   const { show, handleClose } = props;
   const [phoneNumber, setphoneNumber] = useState("");
-  const [order, setorder] = useState("");
-  const [size, setsize] = useState("");
+  // const [order, setorder] = useState("");
+  // const [size, setsize] = useState("");
   const [clientName, setclientName] = useState("");
   const [address, setaddress] = useState("");
   const [comment, setcomment] = useState("");
@@ -40,6 +46,13 @@ export const ModalRegister = (props: IProps) => {
   const [createUser, setcreateUser] = useState(false);
   const [deliveryType, setdeliveryType] = useState("");
   const [clientData, setclientData] = useState<IClient>();
+  const [showMini, setShowMini] = useState(false);
+  const [selectedProducts, setSelectedProducts] = useState<ISelectedProducts[]>(
+    []
+  );
+
+  const { aggregates } = useGetAggregates();
+  const { products } = useGetProducts();
 
   const handleRegister = (event: any) => {
     event.preventDefault();
@@ -50,8 +63,8 @@ export const ModalRegister = (props: IProps) => {
         client: clientName,
         address,
         comment,
-        size,
-        order,
+        // size,
+        // order,
         created_at: firebase.firestore.FieldValue.serverTimestamp(),
         type: deliveryType,
       })
@@ -117,13 +130,13 @@ export const ModalRegister = (props: IProps) => {
     }
   }, [clientData]);
 
-  const handleChangeOrder = (event: any) => {
-    setorder(event.target.value);
-  };
+  // const handleChangeOrder = (event: any) => {
+  //   setorder(event.target.value);
+  // };
 
-  const handleChangeSize = (event: any) => {
-    setsize(event.target.value);
-  };
+  // const handleChangeSize = (event: any) => {
+  //   setsize(event.target.value);
+  // };
 
   const handleChangeClient = (event: any) => {
     setclientName(event.target.value);
@@ -141,9 +154,23 @@ export const ModalRegister = (props: IProps) => {
     setdeliveryType(event === 1 ? "ret" : "del");
   };
 
+  const handleCloseMini = () => setShowMini(false);
+
+  const handleSelectProduct = (product: IProducts) => {
+    setShowMini(true);
+    const data: ISelectedProducts = {
+      product: product.name,
+    };
+    setSelectedProducts((arr) => [...arr, data]);
+  };
+
+  useEffect(() => {
+    console.log("selectedProducts", selectedProducts);
+  }, [selectedProducts]);
+
   return (
     <div className="ModalRegister">
-      <Modal show={show} onHide={handleClose}>
+      <Modal show={show} onHide={handleClose} fullscreen={true}>
         <Modal.Header closeButton>
           <Modal.Title>Registro de pedido</Modal.Title>
         </Modal.Header>
@@ -248,50 +275,26 @@ export const ModalRegister = (props: IProps) => {
                   </span>
                 }
               >
-                <Accordion>
-                  <Accordion.Item eventKey="0">
-                    <Accordion.Header>
-                      <span>Papas Champiñón y Salsanática</span>
-                    </Accordion.Header>
-                    <Accordion.Body>
-                      <ListGroup>
-                        <ListGroup.Item>Mechada (+$1.000)</ListGroup.Item>
-                        <ListGroup.Item>Pollo (+$1.000)</ListGroup.Item>
-                        <ListGroup.Item>Champiñón (+$1.000)</ListGroup.Item>
-                        <ListGroup.Item>Salsanática (+$1.000)</ListGroup.Item>
-                        <ListGroup.Item>Vienesa (+$1.000)</ListGroup.Item>
-                      </ListGroup>
-                    </Accordion.Body>
-                  </Accordion.Item>
-                  <Accordion.Item eventKey="0">
-                    <Accordion.Header>
-                      <span>Papas Fritas</span>
-                    </Accordion.Header>
-                    <Accordion.Body>
-                      <ListGroup>
-                        <ListGroup.Item>Mechada (+$1.000)</ListGroup.Item>
-                        <ListGroup.Item>Pollo (+$1.000)</ListGroup.Item>
-                        <ListGroup.Item>Champiñón (+$1.000)</ListGroup.Item>
-                        <ListGroup.Item>Salsanática (+$1.000)</ListGroup.Item>
-                        <ListGroup.Item>Vienesa (+$1.000)</ListGroup.Item>
-                      </ListGroup>
-                    </Accordion.Body>
-                  </Accordion.Item>
-                  <Accordion.Item eventKey="0">
-                    <Accordion.Header>
-                      <span>Salchipapas</span>
-                    </Accordion.Header>
-                    <Accordion.Body>
-                      <ListGroup>
-                        <ListGroup.Item>Mechada (+$1.000)</ListGroup.Item>
-                        <ListGroup.Item>Pollo (+$1.000)</ListGroup.Item>
-                        <ListGroup.Item>Champiñón (+$1.000)</ListGroup.Item>
-                        <ListGroup.Item>Salsanática (+$1.000)</ListGroup.Item>
-                        <ListGroup.Item>Vienesa (+$1.000)</ListGroup.Item>
-                      </ListGroup>
-                    </Accordion.Body>
-                  </Accordion.Item>
-                </Accordion>
+                <>
+                  {products
+                    .filter((product: IProducts) => {
+                      return product.type === "comida";
+                    })
+                    .map((product: IProducts) => {
+                      return (
+                        <div key={product.name}>
+                          <Button
+                            variant="outline-dark"
+                            onClick={() => {
+                              handleSelectProduct(product);
+                            }}
+                          >
+                            {`${product.name} (+$${product.price})`}
+                          </Button>
+                        </div>
+                      );
+                    })}
+                </>
               </Tab>
               <Tab
                 eventKey={2}
@@ -301,33 +304,28 @@ export const ModalRegister = (props: IProps) => {
                   </span>
                 }
               >
-                Tab 2 content
+                <>
+                  {products
+                    .filter((product: IProducts) => {
+                      return product.type === "bebida";
+                    })
+                    .map((product: IProducts) => {
+                      return (
+                        <div key={product.name}>
+                          <Button
+                            variant="outline-dark"
+                            onClick={() => {
+                              handleSelectProduct(product);
+                            }}
+                          >
+                            {`${product.name} (+$${product.price})`}
+                          </Button>
+                        </div>
+                      );
+                    })}
+                </>
               </Tab>
             </Tabs>
-
-            {/* <Form.Group as={Row} className="mb-3">
-              <Form.Label column sm="2">
-                Pedido
-              </Form.Label>
-              <Col sm="10">
-                <Form.Control
-                  placeholder="Pedido"
-                  onChange={handleChangeOrder}
-                />
-              </Col>
-            </Form.Group>
-            <Form.Group as={Row} className="mb-3">
-              <Form.Label column sm="2">
-                Tamaño
-              </Form.Label>
-              <Col sm="10">
-                <Form.Select aria-label="XL" onChange={handleChangeSize}>
-                  <option>Tamaño</option>
-                  <option value="Normal">Normal</option>
-                  <option value="XL">XL</option>
-                </Form.Select>
-              </Col>
-            </Form.Group> */}
             <Form.Group as={Row} className="mb-3">
               <Form.Label column sm="2">
                 Comentario
@@ -349,6 +347,32 @@ export const ModalRegister = (props: IProps) => {
           </Button>
           <Button variant="primary" type="submit" onClick={handleRegister}>
             Registrar pedido
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal show={showMini}>
+        <Modal.Header closeButton>
+          <Modal.Title>Agregados</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <ListGroup variant="flush">
+            {aggregates.map((aggregate: IAggregates) => {
+              return (
+                <ListGroup.Item key={aggregate.name}>
+                  <input type="checkbox" />{" "}
+                  {`${aggregate.name} (+$${aggregate.price})`}
+                </ListGroup.Item>
+              );
+            })}
+          </ListGroup>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseMini}>
+            Cerrar
+          </Button>
+          <Button variant="primary" onClick={handleCloseMini}>
+            Agregar
           </Button>
         </Modal.Footer>
       </Modal>
