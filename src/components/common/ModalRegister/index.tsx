@@ -29,11 +29,21 @@ interface IClient {
 }
 
 interface ISelectedProducts {
+  id: string;
   product: string;
   aggregates?: string;
 }
 
+interface ISelProdUnit {
+  product?: string;
+  id?: string;
+}
+
 export const ModalRegister = (props: IProps) => {
+  const initialStateClient: IClient = {
+    name: "",
+    address: "",
+  };
   const { show, handleClose } = props;
   const [phoneNumber, setphoneNumber] = useState("");
   // const [order, setorder] = useState("");
@@ -50,27 +60,40 @@ export const ModalRegister = (props: IProps) => {
   const [selectedProducts, setSelectedProducts] = useState<ISelectedProducts[]>(
     []
   );
-  const [selectProduct, setselectProduct] = useState("");
+  const [selectProduct, setselectProduct] = useState<ISelProdUnit>();
 
   const { aggregates } = useGetAggregates();
   const { products } = useGetProducts();
 
   const handleRegister = (event: any) => {
     event.preventDefault();
+    let orderStr = "";
+    selectedProducts.map((selectedProduct: ISelectedProducts) => {
+      const agg = selectedProduct.aggregates
+        ? ` con ${selectedProduct.aggregates} +`
+        : "";
+      orderStr += `${selectedProduct.product} ${agg}`;
+    });
 
     firestore
       .collection("orders")
       .add({
-        client: clientName,
-        address,
+        client: clientData ? clientData.name : clientName,
+        address: clientData ? clientData.address : address,
         comment,
         // size,
-        // order,
+        order: orderStr,
         created_at: firebase.firestore.FieldValue.serverTimestamp(),
         type: deliveryType,
       })
       .then((res) => {
         console.log("orden registrada", res);
+        setclientData(initialStateClient);
+        setSelectedProducts([]);
+        setaddress("");
+        setclientName("");
+        setdisableAddress(true);
+        setdisableUsesr(true);
       })
       .catch((e) => {
         console.log("e", e);
@@ -92,6 +115,7 @@ export const ModalRegister = (props: IProps) => {
           console.log("e", e);
         });
     }
+
     handleClose(event);
   };
 
@@ -156,54 +180,86 @@ export const ModalRegister = (props: IProps) => {
   };
 
   const handleCloseMini = () => {
-    setselectProduct("");
+    let filterProduct = selectedProducts.filter(
+      (selectedProduct: ISelectedProducts) => {
+        return selectedProduct.id !== selectProduct?.id;
+      }
+    );
+    setSelectedProducts(filterProduct);
+    setselectProduct({});
+    setShowMini(false);
+  };
+
+  const handleAddAggregates = () => {
+    setselectProduct({});
     setShowMini(false);
   };
 
   const handleSelectProduct = (product: IProducts) => {
     setShowMini(true);
-    setselectProduct(product.name);
+    const selectData: ISelProdUnit = {
+      product: product.name,
+      id: Date.now().toString(),
+    };
+    setselectProduct(selectData);
+
     const data: ISelectedProducts = {
       product: product.name,
+      id: Date.now().toString(),
     };
     setSelectedProducts((arr) => [...arr, data]);
   };
 
-  const handleSelectAggregate = (aggregate: IAggregates) => {
-    // console.log("aggregates", aggregate);
+  const handleSelectDrink = (product: IProducts) => {
+    const data: ISelectedProducts = {
+      product: product.name,
+      id: Date.now().toString(),
+    };
+    setSelectedProducts((arr) => [...arr, data]);
+  };
+
+  const handleSelectAggregate = (
+    selectProduct: ISelProdUnit,
+    aggregate: IAggregates
+  ) => {
     const selecProduct = selectedProducts.find(
       (selectedProduct: ISelectedProducts) => {
-        return selectedProduct.product === selectProduct;
+        return selectedProduct.id === selectProduct?.id;
       }
     );
 
     let filterProduct = selectedProducts.filter(
       (selectedProduct: ISelectedProducts) => {
-        return selectedProduct.product !== selectProduct;
+        return selectedProduct.id !== selectProduct?.id;
       }
     );
+    if (selectProduct) {
+      const data: ISelectedProducts = {
+        product: selecProduct ? selecProduct.product : "",
+        aggregates:
+          selecProduct?.aggregates === undefined
+            ? aggregate.name
+            : `${selecProduct.aggregates} ${aggregate.name}`,
+        id: selecProduct ? selecProduct.id : "",
+      };
 
-    console.log("selecProduct.aggregates", selecProduct.aggregates);
-    const data: ISelectedProducts = {
-      product: selecProduct.product ? selecProduct.product : "",
-      aggregates:
-        selecProduct.aggregates === undefined
-          ? aggregate.name
-          : `${selecProduct.aggregates} ${aggregate.name}`,
-    };
-
-    filterProduct.push(data);
-    setSelectedProducts(filterProduct);
-
-    // setselectProduct("");
-    // buscar en selectedProducts el valor de selectProduct
-    // cargar los aggregates
-    // limpiar selectProduct
+      filterProduct.push(data);
+      setSelectedProducts(filterProduct);
+    } else {
+      setselectProduct({});
+      setShowMini(false);
+    }
   };
 
-  useEffect(() => {
-    console.log("selectedProducts", selectedProducts);
-  }, [selectedProducts]);
+  // useEffect(() => {
+  //   console.log("useEffect", selectedProducts);
+  //   //Falta
+  //   // Generar notificación de creación de pedido
+  //   // Mejorar la lista de botones de productos
+  //   // Mejorar el diseño de las pestañas
+  //   // Agregar un eliminar al listado de compra
+  //   // Validar el envio de nada
+  // }, [selectedProducts]);
 
   return (
     <div className="ModalRegister">
@@ -352,7 +408,7 @@ export const ModalRegister = (props: IProps) => {
                           <Button
                             variant="outline-dark"
                             onClick={() => {
-                              handleSelectProduct(product);
+                              handleSelectDrink(product);
                             }}
                           >
                             {`${product.name} (+$${product.price})`}
@@ -363,6 +419,20 @@ export const ModalRegister = (props: IProps) => {
                 </>
               </Tab>
             </Tabs>
+
+            <ListGroup variant="flush" as="ol" numbered>
+              {selectedProducts.map((selectedProduct: ISelectedProducts) => {
+                const agg = selectedProduct.aggregates
+                  ? ` con ${selectedProduct.aggregates}`
+                  : "";
+                return (
+                  <ListGroup.Item key={selectedProduct.id} as="li">
+                    <label>{`${selectedProduct.product} ${agg}`}</label>
+                  </ListGroup.Item>
+                );
+              })}
+            </ListGroup>
+
             <Form.Group as={Row} className="mb-3">
               <Form.Label column sm="2">
                 Comentario
@@ -390,7 +460,10 @@ export const ModalRegister = (props: IProps) => {
 
       <Modal show={showMini}>
         <Modal.Header closeButton>
-          <Modal.Title>Agregados: {selectProduct}</Modal.Title>
+          <Modal.Title>
+            Agregados:{" "}
+            {selectProduct !== undefined ? selectProduct.product : ""}
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <ListGroup variant="flush">
@@ -402,7 +475,10 @@ export const ModalRegister = (props: IProps) => {
                     id={aggregate.id}
                     value={aggregate.id}
                     onClick={() => {
-                      handleSelectAggregate(aggregate);
+                      handleSelectAggregate(
+                        selectProduct ? selectProduct : {},
+                        aggregate
+                      );
                     }}
                   />{" "}
                   <label>{`${aggregate.name} (+$${aggregate.price})`}</label>
@@ -415,7 +491,7 @@ export const ModalRegister = (props: IProps) => {
           <Button variant="secondary" onClick={handleCloseMini}>
             Cerrar
           </Button>
-          <Button variant="primary" onClick={handleCloseMini}>
+          <Button variant="primary" onClick={handleAddAggregates}>
             Agregar
           </Button>
         </Modal.Footer>
