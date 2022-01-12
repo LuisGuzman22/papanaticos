@@ -328,7 +328,6 @@ export const ModalRegister = (props: IProps) => {
   //   console.log("useEffect", selectedProducts);
   //   //Falta
   //   // Generar notificación de creación de pedido
-  //   // FIX no está validando el despacho
   // }, [selectedProducts]);
 
   useEffect(() => {
