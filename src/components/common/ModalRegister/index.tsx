@@ -1,3 +1,4 @@
+import firebase from "firebase/compat";
 import React, { MouseEventHandler, useEffect, useState } from "react";
 import {
   Button,
@@ -13,6 +14,7 @@ import {
 } from "react-bootstrap";
 import { FaBiking, FaMapMarkerAlt, FaWineBottle } from "react-icons/fa";
 import { GiFrenchFries } from "react-icons/gi";
+import { ImCross } from "react-icons/im";
 import { firestore } from "../../../config/firebase";
 import useGetAggregates, { IAggregates } from "../../../hooks/useGetAggregates";
 import useGetProducts, { IProducts } from "../../../hooks/useGetProducts";
@@ -46,8 +48,6 @@ export const ModalRegister = (props: IProps) => {
   };
   const { show, handleClose } = props;
   const [phoneNumber, setphoneNumber] = useState("");
-  // const [order, setorder] = useState("");
-  // const [size, setsize] = useState("");
   const [clientName, setclientName] = useState("");
   const [address, setaddress] = useState("");
   const [comment, setcomment] = useState("");
@@ -64,86 +64,101 @@ export const ModalRegister = (props: IProps) => {
   const [totalPrice, settotalPrice] = useState(0);
 
   const [deliveryTypeError, setdeliveryTypeError] = useState(false);
+  const [phoneError, setphoneError] = useState(false);
+  const [clientError, setclientError] = useState(false);
+  const [addressError, setaddressError] = useState(false);
+  const [orderError, setorderError] = useState(false);
 
   const { aggregates } = useGetAggregates();
   const { products } = useGetProducts();
 
   const handleRegister = (event: any) => {
     event.preventDefault();
-    console.log("deliveryType", deliveryType);
     if (!deliveryType) {
-      console.log("no hay deliveryType");
       setdeliveryTypeError(true);
     }
 
+    if (!phoneNumber) {
+      setphoneError(true);
+    }
+
     if (!clientData?.name || !clientName) {
-      console.log("no hay cliente");
+      setclientError(true);
     }
 
     if (!clientData?.address || !address) {
-      console.log("no hay address");
+      setaddressError(true);
     }
 
     let orderStr = "";
-    selectedProducts.map((selectedProduct: ISelectedProducts) => {
+
+    for (let selectedProduct of selectedProducts) {
       const agg =
         selectedProduct.aggregates &&
         selectedProduct.aggregates.trim().length > 0
           ? ` con ${selectedProduct.aggregates}`
           : "";
       orderStr += `${selectedProduct.product} ${agg}`;
-    });
-
+    }
     if (!orderStr) {
-      console.log("No hay orden");
+      setorderError(true);
     }
 
-    // firestore
-    //   .collection("orders")
-    //   .add({
-    //     client: clientData ? clientData.name : clientName,
-    //     address: clientData ? clientData.address : address,
-    //     comment,
-    //     // size,
-    //     order: orderStr,
-    //     created_at: firebase.firestore.FieldValue.serverTimestamp(),
-    //     type: deliveryType,
-    //   })
-    //   .then((res) => {
-    //     console.log("orden registrada", res);
-    //     setclientData(initialStateClient);
-    //     setSelectedProducts([]);
-    //     setaddress("");
-    //     setclientName("");
-    //     setdisableAddress(true);
-    //     setdisableUsesr(true);
-    //   })
-    //   .catch((e) => {
-    //     console.log("e", e);
-    //   });
+    if (
+      !deliveryTypeError &&
+      !phoneError &&
+      !clientError &&
+      !addressError &&
+      !orderError
+    ) {
+      firestore
+        .collection("orders")
+        .add({
+          client: clientData ? clientData.name : clientName,
+          address: clientData ? clientData.address : address,
+          comment,
+          // size,
+          order: orderStr,
+          created_at: firebase.firestore.FieldValue.serverTimestamp(),
+          type: deliveryType,
+        })
+        .then((res) => {
+          console.log("orden registrada", res);
+          setclientData(initialStateClient);
+          setSelectedProducts([]);
+          setaddress("");
+          setclientName("");
+          setdisableAddress(true);
+          setdisableUsesr(true);
+        })
+        .catch((e) => {
+          console.log("e", e);
+        });
 
-    // if (createUser) {
-    //   firestore
-    //     .collection("clients")
-    //     .add({
-    //       address,
-    //       name: clientName,
-    //       phone: phoneNumber,
-    //       created_at: firebase.firestore.FieldValue.serverTimestamp(),
-    //     })
-    //     .then((res) => {
-    //       console.log("res", res);
-    //     })
-    //     .catch((e) => {
-    //       console.log("e", e);
-    //     });
-    // }
+      if (createUser) {
+        firestore
+          .collection("clients")
+          .add({
+            address,
+            name: clientName,
+            phone: phoneNumber,
+            created_at: firebase.firestore.FieldValue.serverTimestamp(),
+          })
+          .then((res) => {
+            console.log("res", res);
+          })
+          .catch((e) => {
+            console.log("e", e);
+          });
+      }
 
-    // handleClose(event);
+      handleClose(event);
+    }
   };
 
   const handleChangePhone = (event: any) => {
     setphoneNumber(event.target.value);
+    setphoneError(event.target.value.length !== 9);
   };
 
   useEffect(() => {
@@ -158,6 +173,8 @@ export const ModalRegister = (props: IProps) => {
               name: element.data().name,
             };
             setclientData(data);
+            setclientError(false);
+            setaddressError(false);
           });
         });
       setdisableAddress(false);
@@ -178,20 +195,14 @@ export const ModalRegister = (props: IProps) => {
     }
   }, [clientData]);
 
-  // const handleChangeOrder = (event: any) => {
-  //   setorder(event.target.value);
-  // };
-
-  // const handleChangeSize = (event: any) => {
-  //   setsize(event.target.value);
-  // };
-
   const handleChangeClient = (event: any) => {
     setclientName(event.target.value);
+    setclientError(false);
   };
 
   const handleChangeAddress = (event: any) => {
     setaddress(event.target.value);
+    setaddressError(false);
   };
 
   const handleChangeComment = (event: any) => {
@@ -285,15 +296,20 @@ export const ModalRegister = (props: IProps) => {
     }
   };
 
-  // useEffect(() => {
-  //   console.log("useEffect", selectedProducts);
-  //   //Falta
-  //   // Generar notificación de creación de pedido
-  //   // Mejorar la lista de botones de productos
-  //   // Mejorar el diseño de las pestañas
-  //   // Agregar un eliminar al listado de compra
-  //   // Validar el envio de nada
-  // }, [selectedProducts]);
+  const handleDeleteProduct = (selectProduct: ISelectedProducts) => {
+    let filterProduct = selectedProducts.filter(
+      (selectedProduct: ISelectedProducts) => {
+        return selectedProduct.id !== selectProduct?.id;
+      }
+    );
+    setSelectedProducts(filterProduct);
+  };
+
+  useEffect(() => {
+    console.log("useEffect", selectedProducts);
+    //Falta
+    // Generar notificación de creación de pedido
+  }, [selectedProducts]);
 
   useEffect(() => {
     let total = 0;
@@ -302,6 +318,7 @@ export const ModalRegister = (props: IProps) => {
       total += prod.price;
     }
 
+    setorderError(selectedProducts.length === 0);
     settotalPrice(total);
   }, [selectedProducts]);
 
@@ -359,7 +376,9 @@ export const ModalRegister = (props: IProps) => {
               <Col sm="10">
                 <Form.Control
                   placeholder="Teléfono"
+                  className={phoneError ? "input-error" : ""}
                   onChange={handleChangePhone}
+                  type="number"
                 />
               </Col>
             </Form.Group>
@@ -371,6 +390,7 @@ export const ModalRegister = (props: IProps) => {
                 <Form.Control
                   placeholder="Cliente"
                   onChange={handleChangeClient}
+                  className={clientError ? "input-error" : ""}
                   value={
                     clientName
                       ? clientName
@@ -390,6 +410,7 @@ export const ModalRegister = (props: IProps) => {
                 <Form.Control
                   placeholder="Dirección"
                   onChange={handleChangeAddress}
+                  className={addressError ? "input-error" : ""}
                   value={
                     address
                       ? address
@@ -411,78 +432,104 @@ export const ModalRegister = (props: IProps) => {
               <Tab
                 eventKey={1}
                 title={
-                  <span>
+                  <span className="tab-title">
                     <GiFrenchFries className="ret-icon" /> <span>Papas</span>
                   </span>
                 }
               >
-                <>
+                <div className="container">
                   {products
                     .filter((product: IProducts) => {
                       return product.type === "comida";
                     })
                     .map((product: IProducts) => {
                       return (
-                        <div key={product.name}>
-                          <Button
-                            variant="outline-dark"
-                            onClick={() => {
-                              handleSelectProduct(product);
-                            }}
-                          >
-                            {`${product.name} (+$${product.price})`}
-                          </Button>
+                        <div className="product-item row" key={product.name}>
+                          <div className="col col-12">
+                            <Button
+                              variant="outline-dark"
+                              onClick={() => {
+                                handleSelectProduct(product);
+                              }}
+                            >
+                              {`${product.name} (+$${product.price})`}
+                            </Button>
+                          </div>
                         </div>
                       );
                     })}
-                </>
+                </div>
               </Tab>
               <Tab
                 eventKey={2}
                 title={
-                  <span>
+                  <span className="tab-title">
                     <FaWineBottle className="ret-icon" /> <span>Bebidas</span>
                   </span>
                 }
               >
-                <>
+                <div className="container">
                   {products
                     .filter((product: IProducts) => {
                       return product.type === "bebida";
                     })
                     .map((product: IProducts) => {
                       return (
-                        <div key={product.name}>
-                          <Button
-                            variant="outline-dark"
-                            onClick={() => {
-                              handleSelectDrink(product);
-                            }}
-                          >
-                            {`${product.name} (+$${product.price})`}
-                          </Button>
+                        <div className="product-item row" key={product.name}>
+                          <div className="col col-12">
+                            <Button
+                              variant="outline-dark"
+                              onClick={() => {
+                                handleSelectDrink(product);
+                              }}
+                            >
+                              {`${product.name} (+$${product.price})`}
+                            </Button>
+                          </div>
                         </div>
                       );
                     })}
-                </>
+                </div>
               </Tab>
             </Tabs>
 
             <ListGroup variant="flush" as="ol" numbered>
-              {selectedProducts.map((selectedProduct: ISelectedProducts) => {
-                const agg =
-                  selectedProduct.aggregates &&
-                  selectedProduct.aggregates.trim().length > 0
-                    ? ` con ${selectedProduct.aggregates}`
-                    : "";
-                return (
-                  <ListGroup.Item key={selectedProduct.id} as="li">
-                    <label>{`${selectedProduct.product} ${agg}`}</label>
-                  </ListGroup.Item>
-                );
-              })}
+              {selectedProducts.map(
+                (selectedProduct: ISelectedProducts, idx: number) => {
+                  const agg =
+                    selectedProduct.aggregates &&
+                    selectedProduct.aggregates.trim().length > 0
+                      ? ` con ${selectedProduct.aggregates}`
+                      : "";
+                  return (
+                    <ListGroup.Item
+                      key={selectedProduct.id}
+                      variant="flush"
+                      className="container"
+                    >
+                      <div className="row">
+                        <div className="col-1">{idx + 1}</div>
+                        <div className="col-9">
+                          <label>{`${selectedProduct.product} ${agg}`}</label>
+                        </div>
+                        <div className="col-2">
+                          <ImCross
+                            onClick={() => {
+                              handleDeleteProduct(selectedProduct);
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </ListGroup.Item>
+                  );
+                }
+              )}
             </ListGroup>
-
+            {orderError && (
+              <span className="message-error">
+                No has seleccionado productos
+              </span>
+            )}
             <Form.Group as={Row} className="mb-3">
               <Form.Label column sm="2">
                 Comentario
@@ -525,6 +572,7 @@ export const ModalRegister = (props: IProps) => {
                     type="checkbox"
                     id={aggregate.id}
                     value={aggregate.id}
+                    name={aggregate.id}
                     onChange={(e) => {
                       handleSelectAggregate(
                         selectProduct ? selectProduct : {},
@@ -533,7 +581,9 @@ export const ModalRegister = (props: IProps) => {
                       );
                     }}
                   />{" "}
-                  <label>{`${aggregate.name} (+$${aggregate.price})`}</label>
+                  <label
+                    htmlFor={aggregate.id}
+                  >{`${aggregate.name} (+$${aggregate.price})`}</label>
                 </ListGroup.Item>
               );
             })}

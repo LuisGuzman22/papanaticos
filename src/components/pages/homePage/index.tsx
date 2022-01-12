@@ -31,7 +31,6 @@ export const HomePage = () => {
             size: element.data().size,
             order: element.data().order,
           };
-
           setOrders((arr) => [...arr, data]);
         });
       });

@@ -51,3 +51,46 @@
 .total-price {
   font-weight: bold;
 }
+
+.message-error {
+  color: red;
+}
+
+.product-item {
+  margin: 10px;
+}
+
+.tab-title {
+  color: black !important;
+  font-weight: 450 !important;
+}
+
+.input-error {
+  border: 1px solid red !important;
+}
+
+.input-error::placeholder {
+  /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: red !important;
+}
+
+.input-error:-ms-input-placeholder {
+  /* Internet Explorer 10-11 */
+  color: red !important;
+}
+
+.input-error::-ms-input-placeholder {
+  /* Microsoft Edge */
+  color: red !important;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
