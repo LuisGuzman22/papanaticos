@@ -8,13 +8,11 @@ interface IProps {
 }
 export const OrderComponent = (props: IProps) => {
   const { order } = props;
-  const { comment, order: title, size } = order;
+  const { comment, order: title } = order;
   return (
     <div className="order-component">
       <Card border="dark" style={{ width: "18rem" }}>
-        <Card.Header>
-          {title} - {size}
-        </Card.Header>
+        <Card.Header>{title}</Card.Header>
         <Card.Body>
           <Card.Title></Card.Title>
           <Card.Text>{comment}</Card.Text>

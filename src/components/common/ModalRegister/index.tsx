@@ -55,7 +55,7 @@ export const ModalRegister = (props: IProps) => {
   const [disableAddress, setdisableAddress] = useState(true);
   const [createUser, setcreateUser] = useState(false);
   const [deliveryType, setdeliveryType] = useState("");
-  const [clientData, setclientData] = useState<IClient>();
+  const [clientData, setclientData] = useState<IClient>(initialStateClient);
   const [showMini, setShowMini] = useState(false);
   const [selectedProducts, setSelectedProducts] = useState<ISelectedProducts[]>(
     []
@@ -82,11 +82,25 @@ export const ModalRegister = (props: IProps) => {
       setphoneError(true);
     }
 
-    if (!clientData?.name || !clientName) {
+    const selectedClientName =
+      clientName.length > 0
+        ? clientName
+        : clientData?.name
+        ? clientData.name
+        : "";
+
+    if (selectedClientName.length === 0) {
       setclientError(true);
     }
 
-    if (!clientData?.address || !address) {
+    const selectedClientAddress =
+      clientName.length > 0
+        ? address
+        : clientData?.address
+        ? clientData.address
+        : "";
+
+    if (selectedClientAddress.length === 0) {
       setaddressError(true);
     }
 
@@ -104,6 +118,11 @@ export const ModalRegister = (props: IProps) => {
       setorderError(true);
     }
 
+    // console.log("deliveryTypeError", !deliveryTypeError);
+    // console.log("phoneError", !phoneError);
+    // console.log("clientError", !clientError);
+    // console.log("addressError", !addressError);
+    // console.log("orderError", !orderError);
     if (
       !deliveryTypeError &&
       !phoneError &&
@@ -305,11 +324,12 @@ export const ModalRegister = (props: IProps) => {
     setSelectedProducts(filterProduct);
   };
 
-  useEffect(() => {
-    console.log("useEffect", selectedProducts);
-    //Falta
-    // Generar notificación de creación de pedido
-  }, [selectedProducts]);
+  // useEffect(() => {
+  //   console.log("useEffect", selectedProducts);
+  //   //Falta
+  //   // Generar notificación de creación de pedido
+  //   // FIX no está validando el despacho
+  // }, [selectedProducts]);
 
   useEffect(() => {
     let total = 0;
